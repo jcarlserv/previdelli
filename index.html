@@ -297,6 +297,23 @@
     50%{left:40%;width:45%;}
     100%{left:100%;width:30%;}
   }
+
+  /* ---------- IMPRESSÃO / EXPORTAR PDF ----------
+     "Exportar PDF" só chama window.print() — sem biblioteca externa nenhuma. Esse bloco
+     esconde tudo que não faz sentido no papel (menu, filtros, botões de ação, rodapé) e
+     deixa só o conteúdo da aba aberta na hora (o resto já está com display:none pelo
+     próprio CSS de abas, então não precisa fazer nada especial pra "escolher" a aba). */
+  @media print{
+    #barra-progresso-topo, #faixa-demo, header.topo, footer.rodape-sistema,
+    .filtros, .celula-acoes, .sobreposicao, .botao-multiselect, .painel-multiselect{
+      display:none !important;
+    }
+    body{background:#fff;}
+    main{padding:0;max-width:100%;}
+    .cartao, .kpi{box-shadow:none;border:1px solid #ddd;break-inside:avoid;}
+    .painel{display:none;}
+    .painel.ativo{display:block;}
+  }
 </style>
 </head>
 <body>
@@ -353,6 +370,7 @@
           <h2>Lançamento</h2>
           <p>Registre um atendimento realizado. Os campos com seta são padronizados por lista.</p>
         </div>
+        <button class="botao sutil pequeno botao-exportar-pdf">Exportar PDF</button>
       </div>
       <div class="cartao">
         <h3>Novo registro</h3>
@@ -408,6 +426,7 @@
             </div>
             <button class="botao secundario" id="botao-novo-registro-gerencial">+ Novo registro</button>
             <button class="botao sutil pequeno" id="botao-limpar-periodo">Limpar período</button>
+            <button class="botao sutil pequeno botao-exportar-pdf">Exportar PDF</button>
           </div>
         </div>
 
@@ -440,6 +459,7 @@
               <label>Profissional</label>
               <select id="filtro-prof-critica"><option value="">Todos</option></select>
             </div>
+            <button class="botao sutil pequeno botao-exportar-pdf">Exportar PDF</button>
           </div>
         </div>
       </div>
@@ -485,6 +505,7 @@
             <label>Ano</label>
             <select id="filtro-ano-metas"></select>
           </div>
+          <button class="botao sutil pequeno botao-exportar-pdf">Exportar PDF</button>
         </div>
       </div>
 
@@ -522,6 +543,7 @@
             <label>Andar</label>
             <select id="filtro-andar-dashboard"><option value="">Todos</option></select>
           </div>
+          <button class="botao sutil pequeno botao-exportar-pdf">Exportar PDF</button>
         </div>
       </div>
 
@@ -592,6 +614,7 @@
             <label>Andar</label>
             <select id="filtro-andar-analises"><option value="">Todos</option></select>
           </div>
+          <button class="botao sutil pequeno botao-exportar-pdf">Exportar PDF</button>
         </div>
       </div>
 
@@ -642,7 +665,7 @@
           <div class="campo"><label>Mês</label><select id="rmr-mes"></select></div>
           <div class="campo"><label>Ano</label><select id="rmr-ano"></select></div>
           <div class="campo"><label>Andar</label><select id="rmr-andar"><option value="">Todos</option></select></div>
-          <button class="botao sutil pequeno" id="rmr-botao-imprimir">Imprimir / PDF</button>
+          <button class="botao sutil pequeno botao-exportar-pdf" id="rmr-botao-imprimir">Exportar PDF</button>
         </div>
       </div>
 
@@ -715,6 +738,7 @@
           <h2>Configurações</h2>
           <p>Dados gerais do sistema, salvos no Supabase.</p>
         </div>
+        <button class="botao sutil pequeno botao-exportar-pdf">Exportar PDF</button>
       </div>
 
       <div class="cartao" style="max-width:480px;">
@@ -769,9 +793,10 @@
         <h3>Importar produção em massa (CSV)</h3>
         <p style="margin:-8px 0 16px;color:var(--ink-400);font-size:12.5px;">
           Importa um arquivo <code>.csv</code> exportado da planilha direto para a tabela de produção do Supabase.
-          Colunas aceitas no cabeçalho: <b>andar, prof, data, turno, paciente, protocolo, procedimento, exames,
-          biopsias, convenio, valor, forma_pagamento, atendente</b>. A data pode estar em <code>dd/mm/aaaa</code>
-          ou <code>aaaa-mm-dd</code>; o valor aceita vírgula ou ponto como separador decimal.
+          Colunas aceitas no cabeçalho: <b>andar, prof, data, turno, paciente, protocolo, carteirinha,
+          procedimento, exames, biopsias, convenio, valor, forma_pagamento, atendente</b>. A data pode
+          estar em <code>dd/mm/aaaa</code> ou <code>aaaa-mm-dd</code>; o valor aceita vírgula ou ponto
+          como separador decimal.
         </p>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <input type="file" id="input-importar-csv" accept=".csv,text/csv" />
@@ -790,7 +815,7 @@
     </section>
   </main>
   <footer class="rodape-sistema">
-    <span>ProdClin <b id="versao-sistema">v2.0.1</b></span>
+    <span>ProdClin <b id="versao-sistema">v2.2.0</b></span>
     <span class="separador-rodape">•</span>
     <span>Desenvolvido por <b>DSP Group</b></span>
   </footer>
@@ -1878,6 +1903,7 @@ function preencherSelectsPeriodo(){
   // "+ Novo registro" segue a permissão fragmentada criar_verificar (gerente sempre tem).
   document.getElementById('botao-novo-registro-gerencial').style.display = temPermissao('criar_verificar') ? 'inline-flex' : 'none';
   document.getElementById('botao-salvar-nota').addEventListener('click', salvarNota);
+  document.querySelectorAll('.botao-exportar-pdf').forEach(b=>b.addEventListener('click', ()=>window.print()));
 
   document.getElementById('filtro-data-inicio').addEventListener('change', atualizarEditar);
   document.getElementById('filtro-data-fim').addEventListener('change', atualizarEditar);
@@ -1915,6 +1941,7 @@ function definicaoCampos(){
     {chave:'exames', rotulo:'Exame', tipo:'select', opcoes:L.exames},
     {chave:'biopsias', rotulo:'Biópsia (frascos)', tipo:'select', opcoes:L.biopsias_frascos},
     {chave:'convenio', rotulo:'Convênio', tipo:'select', opcoes:L.convenios, obrigatorio:true},
+    {chave:'carteirinha', rotulo:'Carteirinha', tipo:'text'},
     {chave:'valor', rotulo:'Valor (R$)', tipo:'number', obrigatorio:true},
     {chave:'forma_pagamento', rotulo:'Forma de pagamento', tipo:'select', opcoes:L.formas_pagamento, obrigatorio:true},
     {chave:'atendente', rotulo:'Atendente', tipo:'select', opcoes:L.atendentes, obrigatorio:true}
@@ -2143,7 +2170,7 @@ async function atualizarEditar(){
     tabela.innerHTML = '<tr><td class="vazio">Nenhum lançamento neste período.</td></tr>';
   } else {
     tabela.innerHTML = `
-      <thead><tr><th>Data</th><th>Profissional</th><th>Andar</th><th>Paciente</th><th>Procedimento</th><th>Convênio</th><th>Forma pgto.</th><th>Valor</th><th>Atendente</th>${podeEditar?'<th></th>':''}</tr></thead>
+      <thead><tr><th>Data</th><th>Profissional</th><th>Andar</th><th>Paciente</th><th>Procedimento</th><th>Convênio</th><th>Carteirinha</th><th>Forma pgto.</th><th>Valor</th><th>Atendente</th>${podeEditar?'<th></th>':''}</tr></thead>
       <tbody>${registros.map((r,i)=>`
         <tr>
           <td>${formatarDataExibicao(r.data)}</td>
@@ -2152,6 +2179,7 @@ async function atualizarEditar(){
           <td>${r.paciente||''}</td>
           <td>${r.procedimento||''}</td>
           <td>${r.convenio||'—'}</td>
+          <td class="mono">${r.carteirinha||'—'}</td>
           <td>${r.forma_pagamento||'—'}</td>
           <td class="mono">${formatarMoeda(r.valor)}</td>
           <td>${r.atendente||''}</td>
@@ -2460,7 +2488,7 @@ document.getElementById('botao-salvar-config').addEventListener('click', async (
 /* ---------------------------------------------------------------------
    IMPORTAÇÃO EM MASSA DE PRODUÇÃO VIA CSV
 --------------------------------------------------------------------- */
-const COLUNAS_PRODUCAO_ACEITAS = ['andar','prof','data','turno','paciente','protocolo','procedimento','exames','biopsias','convenio','valor','forma_pagamento','atendente'];
+const COLUNAS_PRODUCAO_ACEITAS = ['andar','prof','data','turno','paciente','protocolo','carteirinha','procedimento','exames','biopsias','convenio','valor','forma_pagamento','atendente'];
 const ALIAS_CABECALHO_PRODUCAO = {
   'forma_de_pagamento':'forma_pagamento',
   'forma_pagto':'forma_pagamento',
@@ -3056,7 +3084,6 @@ function rmrPrepararSelects(){
   selAndar.addEventListener('change', atualizarRMR);
   document.getElementById('rmr-busca-detalhe').addEventListener('input', rmrFiltrarTabelaDetalhe);
   document.getElementById('rmr-botao-salvar-nota').addEventListener('click', rmrSalvarNota);
-  document.getElementById('rmr-botao-imprimir').addEventListener('click', ()=>window.print());
   rmrSelectsProntos = true;
 }
 
